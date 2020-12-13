@@ -1,7 +1,7 @@
 import pickle
 from pymatgen import MPRester
 
-mat_api_key = '<ENTER API KEY>'
+mat_api_key = 'JWV6Fi4f6VfxROtHO2uP'
 
 mpr = MPRester(mat_api_key)
 
