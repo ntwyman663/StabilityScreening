@@ -17,38 +17,37 @@ import time
 
 mat_api_key = '<ENTER API KEY>'
 
-mpr = MPRester(mat_api_key)
+def load_compounds(filename):
+    print("Loading Compounds....")
+    file = open(filename, 'rb')
+    all_compounds = pickle.load(file)
 
-print("Loading Compounds....")
-file = open('MPDatabase.pckl', 'rb')
-all_compounds1 = pickle.load(file)
-
-all_compounds = []
-for compound in all_compounds1:
-    if compound['nsites'] == sum(compound['unit_cell_formula'].values()):
-        all_compounds.append(compound)
-
-criteria = float(input("Enter Stable Phase Criteria in meV: ")) 
-
-#def find_stable_phases(compound):
-#    '''
-#    find all compounds with e_above_hull within given range of zero
-#    '''
-#    if abs(compound['e_above_hull']) < criteria/1000:
-#        return compound
+    print("Checking data....")
+    discrepancy = 0
+    for compound in all_compounds:
+        if compound['nsites'] != sum(compound['unit_cell_formula'].values()):
+            discrepancy+=1
+    assert discrepancy == 0, str(discrepancy) + \
+            " compounds have n_sites that don't match their formulas."
+    return all_compounds
 
 
-print('Finding Stable Phases....')    
-    
-stable_phase = []
+def find_stable_phases(all_compounds, criteria):
+    """
+    find all compounds with e_above_hull within given range of zero
+    args:
+        all_compounds: returned from load_compounds (list of dicts)
+        criteria: criteria for a stable phase in meV
+    """
+    print('Finding Stable Phases....')    
+        
+    stable_phase = []
 
-for compound in tqdm.tqdm(all_compounds): #find all compounds with e_above_hull within 0.05 of 0
-    if abs(compound['e_above_hull']) < criteria/1000:
-        stable_phase.append(compound)
+    for compound in tqdm.tqdm(all_compounds): #find all compounds with e_above_hull within 0.05 of 0
+        if abs(compound['e_above_hull']) < criteria/1000:
+            stable_phase.append(compound)
+    return stable_phase
 
-#pool = mp.Pool(processes=1)
-#
-#stable_phase = list(tqdm.tqdm(pool.imap(find_stable_phases, all_compounds), total=86680))
 
 
 ######## COMPETING PHASE AND OXIDE CALCULATION ########
@@ -315,17 +314,22 @@ def Make_Property_Dict(compound):
 
     
 if __name__ == '__main__':
-        pool = mp.Pool(processes=16)
-        print('Calculating Data....')
-        DictList = list(tqdm.tqdm(pool.imap(Make_Property_Dict, all_compounds), total=len(all_compounds)))
-        
-        FinalDF = pd.DataFrame(DictList)
+    all_compounds = load_compounds("MPDatabase.pckl")
+    criteria = 50 # criteria for stable phases in meV
+    stable_phase = find_stable_phases(all_compounds, criteria)
+    
+    
+    pool = mp.Pool(processes=16)
+    print('Calculating Data....')
+    DictList = list(tqdm.tqdm(pool.imap(Make_Property_Dict, all_compounds), total=len(all_compounds)))
+    
+    FinalDF = pd.DataFrame(DictList)
 
-        filename = 'FinalDF_' + str(criteria) + '.pckl'
-        f = open(filename, 'wb')
-        pickle.dump(FinalDF, f)
-        f.close()
+    filename = 'FinalDF_' + str(criteria) + '.pckl'
+    f = open(filename, 'wb')
+    pickle.dump(FinalDF, f)
+    f.close()
 
 
-        print('Done.')
+    print('Done.')
         
