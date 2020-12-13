@@ -20,7 +20,7 @@ mat_api_key = '<ENTER API KEY>'
 mpr = MPRester(mat_api_key)
 
 print("Loading Compounds....")
-file = open('MPDatabase.pickle', 'rb')
+file = open('MPDatabase.pckl', 'rb')
 all_compounds1 = pickle.load(file)
 
 all_compounds = []

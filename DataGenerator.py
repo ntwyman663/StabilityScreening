@@ -10,6 +10,6 @@ all_compounds = mpr.query({}, properties=["task_id", "pretty_formula", 'e_above_
                           'elements', 'volume', 'formation_energy_per_atom', 'band_gap',
                            'nsites', 'unit_cell_formula'])
 
-file = open('MPDatabase.pickle', 'wb')
+file = open('MPDatabase.pckl', 'wb')
 pickle.dump(all_compounds, file)
 file.close()
