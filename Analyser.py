@@ -27,7 +27,12 @@ def load_compounds(filename):
     """
     print("Loading Compounds....")
     file = open(filename, 'rb')
-    all_compounds = pickle.load(file)
+    all_compounds_data = pickle.load(file)
+    all_compounds = []
+    print("Cleaning data....")
+    for compound in all_compounds_data:
+        if None not in compound.values():
+            all_compounds.append(compound)
 
     print("Checking data....")
     discrepancy = 0
@@ -95,7 +100,7 @@ def find_comp(stable_oxides, compound_unit_cell, compound_formE, condition, n):
     #what if positive formE
     
     orig_natoms = sum(compound_unit_cell.values())
-    compound_unit_cell1 = dict((a, b/orig_natoms) for a, b in \
+    normalised_unit_cell = dict((a, b/orig_natoms) for a, b in \
     compound_unit_cell.items()) #normalise stoichiometry
     
     for oxide in stable_oxides:
@@ -105,7 +110,7 @@ def find_comp(stable_oxides, compound_unit_cell, compound_formE, condition, n):
         if condition == 'Oxide':
             del oxide['el_weight']['O']
         
-        oxide['ranker'] = dict((a, b/compound_unit_cell1[a]) for a, b in \
+        oxide['ranker'] = dict((a, b/normalised_unit_cell[a]) for a, b in \
         oxide['el_weight'].items()) #find greedy ranking parameter
         
         oxide['ranking_no'] = sum(oxide['ranker'].values())
@@ -118,23 +123,23 @@ def find_comp(stable_oxides, compound_unit_cell, compound_formE, condition, n):
     total_formE = 0
     counter = 0
     #if all atoms in unit cell not yet accounted for
-    while sum(compound_unit_cell1.values()) != 0 and sort_oxides1 != []:         
+    while sum(normalised_unit_cell.values()) != 0 and sort_oxides1 != []:         
         if counter == 0:    
             oxide = sort_oxides1[n]
         else: 
             oxide = sort_oxides1[0] #to allow forced initial choice
         
         intersection = list(set(oxide['elements']).\
-        intersection(compound_unit_cell1.keys()))
-        
-        if intersection == []:
+        intersection(normalised_unit_cell.keys()))
+        # shouldnt we remove O from intersection???
+        if len(intersection) == 0:
             print(compound_unit_cell)
             print(oxide['unit_cell_formula'])
             print(oxide['nsites'])
         intersect_rank = {}
 
         for element in intersection:
-            intersect_rank[element] = compound_unit_cell1[element]/ \
+            intersect_rank[element] = normalised_unit_cell[element]/ \
             (oxide['unit_cell_formula'][element]/oxide['nsites'])
         
         #find limiting element   
@@ -143,11 +148,11 @@ def find_comp(stable_oxides, compound_unit_cell, compound_formE, condition, n):
         used_up_elements = []
         for element in intersection:
             
-            compound_unit_cell1[element] = compound_unit_cell1[element] - \
+            normalised_unit_cell[element] = normalised_unit_cell[element] - \
             (ratio * oxide['unit_cell_formula'][element]/oxide['nsites'])
             
             #inequality because of != 0 problem
-            if abs(compound_unit_cell1[element]) < 0.0001: 
+            if abs(normalised_unit_cell[element]) < 0.0001: 
                 used_up_elements.append(element)
                 
         result.append(oxide)
@@ -160,7 +165,8 @@ def find_comp(stable_oxides, compound_unit_cell, compound_formE, condition, n):
         counter += 1
         
     #inequality because of != 0 problem
-    if sort_oxides1 == [] and abs(sum(compound_unit_cell1.values())) > 0.0001: 
+    if len(sort_oxides1) == 0 and \
+                        abs(sum(normalised_unit_cell.values())) > 0.0001: 
         
         FinishEarly = True
                 
@@ -272,10 +278,8 @@ def Make_Property_Dict(compound):
         
         
         #### FOR NUM OXIDES
-        v_ratio = 0
         oxide_no = 0
         oxides_id_withform = []
-        #v_ratio_id = 'n/a'
         oxide_listdict = []
             
         elements = compound['elements']
@@ -294,7 +298,7 @@ def Make_Property_Dict(compound):
                     
             #### FOR NUM OXIDES
             if 'O' in i['elements']:
-                el = i['elements']
+                el = i['elements'][:]
                 el.remove('O')
                 #o_sites = i['unit_cell_formula']['O']
                 if set(el).issubset(elements) and len(el) != 0:
@@ -343,15 +347,12 @@ def Make_Property_Dict(compound):
         PDict['Index of First Oxide Selected'] = x[5]
 
 
-        v_ratio2 = 1000
+        vol_ratio = []
+        
         for i in x[0]:
-            v2 = i['volume']/compound['volume']
-            if abs(v2 - 1) < abs(v_ratio2 - 1):
-                v_ratio2 = v2
-                v_ratio_id2 = i
-                
-        PDict['Best Volume Ratio'] = v_ratio_id2
-        PDict['ID of Best Volume Ratio'] = v_ratio2
+            vol_ratio.append(i['volume'] / compound['volume'])
+        # Use to see whether top two oxides have PBR 1-2        
+        PDict['Volume Ratios'] = vol_ratio
 
     
     return PDict

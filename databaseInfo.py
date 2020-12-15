@@ -23,8 +23,10 @@ for compound in database:
         discrepancy+=1
 assert discrepancy == 0, str(discrepancy) + \
         " compounds have n_sites that don't match their formulas."
-
+count = 0
 for i in database:
-    if len(i['elements']) == 2 and 'O' in i['elements']:
-        print(i['elements'])
+    if None in i.values():
+        count += 1
+        print(i)
+print(count)
 
