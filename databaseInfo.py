@@ -25,8 +25,17 @@ assert discrepancy == 0, str(discrepancy) + \
         " compounds have n_sites that don't match their formulas."
 count = 0
 for i in database:
-    if None in i.values():
-        count += 1
-        print(i)
+    if type(i['pretty_formula']) != str:
+        count+=1
 print(count)
+
+file = open('FinalDF_50.pckl', 'rb')
+DF = pickle.load(file)
+compounds = [i for i in DF['Formula'] if type(i) == str]
+print(len(compounds))
+
+file = open('FinalDictList_50.pckl', 'rb')
+DF = pickle.load(file)
+compounds = [i for i in DF if i != {}]
+print(len(compounds))
 

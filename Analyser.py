@@ -315,10 +315,10 @@ def Make_Property_Dict(compound):
         
         PDict['task_id'] = compound['task_id']
         PDict['Formula'] = compound['pretty_formula']
+        assert type(PDict['Formula']) == str
         PDict['Bandgap /eV'] = compound['band_gap']
-        
-        PDict['Competing Phase Number (with formation E correction)'] = \
-        competing_phase_no
+        PDict['e_above_hull'] = compound['e_above_hull']
+        PDict['elements'] = compound['elements']
         PDict['Competing Phase List (with formation E correction)'] = \
         competing_phases_id_withform
         
@@ -326,9 +326,7 @@ def Make_Property_Dict(compound):
         compound['formation_energy_per_atom'], 'NotOx')
         
         PDict['Complementary Competing Phase List'] = y[0]
-        PDict['Decomposition Product EF'] = y[1]
         PDict['Heat of Decomposition'] = y[2]
-        PDict['Number of Complementary Phases'] = y[3]
         PDict['Early Finish1'] = y[4]
         PDict['Index of First Phase Selected'] = y[5]
         
@@ -340,9 +338,7 @@ def Make_Property_Dict(compound):
         compound['formation_energy_per_atom'], 'Oxide')
         
         PDict['Complementary Oxide List'] = x[0]
-        PDict['Oxidation Product EF'] = x[1]
         PDict['Heat of Oxidation'] = x[2]
-        PDict['Number of Complementary Oxides'] = x[3]
         PDict['Early Finish2'] = x[4]
         PDict['Index of First Oxide Selected'] = x[5]
 
@@ -364,19 +360,19 @@ if __name__ == '__main__':
     all_compounds = load_compounds("MPDatabase.pckl")
     criteria = 50 # criteria for stable phases in meV
     stable_phase = find_stable_phases(all_compounds, criteria)
-    
+    print(len(stable_phase))
     
     pool = mp.Pool(processes=32)
     print('Calculating Data....')
-    DictList = list(tqdm.tqdm(pool.imap(Make_Property_Dict, all_compounds), \
-    total=len(all_compounds)))
+    DictList = list(tqdm.tqdm(pool.imap(Make_Property_Dict, stable_phase), \
+    total=len(stable_phase)))
     
-    FinalDF = pd.DataFrame(DictList)
+    #FinalDF = pd.DataFrame(DictList)
     
     print('Saving result....')
-    filename = 'FinalDF_' + str(criteria) + '.pckl'
+    filename = 'FinalDictList_' + str(criteria) + '.pckl'
     f = open(filename, 'wb')
-    pickle.dump(FinalDF, f)
+    pickle.dump(DictList, f)
     f.close()
 
 
