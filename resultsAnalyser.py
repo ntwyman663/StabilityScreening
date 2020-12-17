@@ -14,7 +14,7 @@ import seaborn as sns
 from scipy import stats
 import math
 
-file = open('FinalDF_50.0.pckl', 'rb')
+file = open('FinalDF_50.pckl', 'rb')
 DF = pickle.load(file)
 #
 #file = open('FinalDF_50.0.1.pckl', 'rb')
@@ -46,7 +46,6 @@ plt.xlabel('Number of Competing Phases')
 plt.ylabel('Normalised Frequency')
 plt.show()
 
-
 #NUMBER OF COMPETING PHASES 0-100
 x = [i for i in DF['Competing Phase Number (with formation E correction)'] if not math.isnan(i) and i < 101 ]
 sns.distplot(x, color = 'g')
@@ -54,7 +53,6 @@ plt.xlim(0, 100)
 plt.xlabel('Number of Competing Phases')
 plt.ylabel('Normalised Frequency')
 plt.show()
-
 
 #NUMBER OF ELEMENTS IN 
 norm = 0
