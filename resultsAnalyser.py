@@ -16,6 +16,8 @@ import math
 
 file = open('FinalDF_50.pckl', 'rb')
 DF = pickle.load(file)
+DF = DF.dropna(how='all')
+print(DF.shape)
 #
 #file = open('FinalDF_50.0.1.pckl', 'rb')
 #DF = pickle.load(file)
@@ -23,9 +25,7 @@ DF = pickle.load(file)
 #file2 = open('num_elements50.0.pckl', 'rb')
 #num_elements = pickle.load(file2)
 
-compounds = DF['Formula']
-compounds = [i for i in DF['Formula'] if type(i) == str]
-DF1 = DF
+
 #x = [random.gauss(40,20) for _ in range(400)]
 #y = [random.gauss(4,2) for _ in range(400)]
 #d = {'col1': x, 'col2': y}
@@ -37,7 +37,7 @@ DF1 = DF
 #
 #sns.plt.show()
 
-
+'''
 #NUMBER OF COMPETING PHASES
 x = [i for i in DF['Competing Phase Number (with formation E correction)'] if not math.isnan(i) ]
 sns.distplot(x, bins = 500, color = 'g')
@@ -45,15 +45,17 @@ plt.xlim(0, 1200)
 plt.xlabel('Number of Competing Phases')
 plt.ylabel('Normalised Frequency')
 plt.show()
-
+'''
 #NUMBER OF COMPETING PHASES 0-100
+print(len(DF['Competing Phase Number (with formation E correction)']))
 x = [i for i in DF['Competing Phase Number (with formation E correction)'] if not math.isnan(i) and i < 101 ]
+#print(len(nans))
 sns.distplot(x, color = 'g')
 plt.xlim(0, 100)
 plt.xlabel('Number of Competing Phases')
 plt.ylabel('Normalised Frequency')
 plt.show()
-
+'''
 #NUMBER OF ELEMENTS IN 
 norm = 0
 for i in num_elements: 
@@ -83,7 +85,7 @@ sns.jointplot(x="Number of Competing Phases", y="Number of Elements in a Materia
               data=df1, kind="kde", color = 'g')
 
 
-
+'''
 
 
 
@@ -105,7 +107,7 @@ plt.xlabel('Number of Potential Oxides')
 plt.ylabel('Normalised Frequency')
 plt.show()
 
-
+'''
 #NUMBER OF ELEMENTS IN 
 
 sns.distplot(num_elements, color = 'r')
@@ -127,21 +129,22 @@ df1 = pd.DataFrame.from_dict(DList)
 sns.jointplot(x="Number of Potential Oxides", y="Number of Elements in a Material", 
               data=df1, kind="kde", color = 'r')
 
-
+'''
 #HEAT OF DECOMPOSITION 
-x = [i for i in DF['Heat of Decomposition'] if not math.isnan(i)]
-sns.distplot(x, color = 'g')
-plt.xlim(-1, 0)
+x = [i for i in DF['Heat of Decomposition'] if not math.isnan(i) and i>-0.1]
+zeros = [i for i in x if i == 0]
+#print(len(x), len(zeros))
+zeros = [len(i) for i in df2['Complementary Competing Phase List']]
+sns.distplot(x, color = 'g', bins=500)
+plt.xlim(-0.1, 0)
 plt.xlabel('Heat of Decomposition /eV/atom')
 plt.ylabel('Normalised Frequency')
 plt.rc('xtick', labelsize=12) 
 plt.rc('ytick', labelsize=12) 
 plt.show()
 
-x1 = [x[i] for i in range(len(x)) if x[i] < -2.2]
-x2 = [compounds[i] for i in range(len(x)) if x[i] < -2.2]
 
-
+"""
 #HEAT OF DECOMPOSITION WITHOUT EARLY FINISHERS
 z = [i for i in DF['Heat of Decomposition'] if not math.isnan(i)]
 y = [i for i in DF['Early Finish1'] if not math.isnan(i)]
@@ -153,7 +156,7 @@ plt.ylabel('Normalised Frequency')
 plt.rc('xtick', labelsize=12) 
 plt.rc('ytick', labelsize=12) 
 plt.show()
-
+"""
 
 #COMPLEMENTARY GROUP SIZE OF COMPLETED
 z = [i for i in DF['Number of Complementary Phases'] if not math.isnan(i)]
@@ -167,14 +170,14 @@ plt.rc('xtick', labelsize=12)
 plt.rc('ytick', labelsize=12) 
 plt.show()
 
-
+'''
 x4 = [num_elements[i] for i in range(len(y)) if y[i]==False]
 
 DList = {'Heat of Decomposition /eV/atom':x2, 'Number of Complementary Phases': x4}
 df1 = pd.DataFrame.from_dict(DList)
 sns.jointplot(x='Heat of Decomposition /eV/atom', y='Number of Complementary Phases', 
               data=df1, kind="kde", color = 'g')
-
+'''
 
 
 
