@@ -29,13 +29,13 @@ for i in database:
         count+=1
 print(count)
 
-file = open('FinalDF_50.pckl', 'rb')
-DF = pickle.load(file)
-compounds = [i for i in DF['Formula'] if type(i) == str]
-print(len(compounds))
 
 file = open('FinalDictList_50.pckl', 'rb')
-DF = pickle.load(file)
-compounds = [i for i in DF if i != {}]
-print(len(compounds))
+DL = pickle.load(file)
+DF = pd.DataFrame(DL)
 
+print("Saving...")
+file = open('FinalDF_50.pckl', 'wb')
+pickle.dump(DF, file)
+file.close()
+print("Done.")
