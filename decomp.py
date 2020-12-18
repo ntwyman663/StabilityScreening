@@ -269,87 +269,85 @@ def Make_Property_Dict(compound):
     '''
     PDict = {}
     
-    if abs(compound['e_above_hull']) < criteria/1000: #if stable 
+    
+    #### FOR NUM PHASES
+    competing_phases_id_withform = []
+    competing_phase_no = 0
+    comp_listdict =[]
+    
+    
+    #### FOR NUM OXIDES
+    oxide_no = 0
+    oxides_id_withform = []
+    oxide_listdict = []
         
+    elements = compound['elements']
+    
+    for i in all_compounds:
         #### FOR NUM PHASES
-        competing_phases_id_withform = []
-        competing_phase_no = 0
-        comp_listdict =[]
-        
-        
-        #### FOR NUM OXIDES
-        oxide_no = 0
-        oxides_id_withform = []
-        oxide_listdict = []
+        if set(i['elements']).issubset(elements):
+            comp_listdict.append(i) #for find_comp
             
-        elements = compound['elements']
-        
-        for i in stable_phase:
-            #### FOR NUM PHASES
-            if set(i['elements']).issubset(elements):
-                comp_listdict.append(i) #for find_comp
+            if i['formation_energy_per_atom'] < \
+                            compound['formation_energy_per_atom']:
+                #find all other phases containing just those elements                
+                competing_phase_no +=1
+                competing_phases_id_withform.append(i['task_id'])
+                
+                
+        #### FOR NUM OXIDES
+        if 'O' in i['elements']:
+            el = i['elements'][:]
+            el.remove('O')
+            #o_sites = i['unit_cell_formula']['O']
+            if set(el).issubset(elements) and len(el) != 0:
+                oxide_listdict.append(i) #for find_comp
                 
                 if i['formation_energy_per_atom'] < \
                                 compound['formation_energy_per_atom']:
-                    #find all other phases containing just those elements                
-                    competing_phase_no +=1
-                    competing_phases_id_withform.append(i['task_id'])
-                    
-                    
-            #### FOR NUM OXIDES
-            if 'O' in i['elements']:
-                el = i['elements'][:]
-                el.remove('O')
-                #o_sites = i['unit_cell_formula']['O']
-                if set(el).issubset(elements) and len(el) != 0:
-                    oxide_listdict.append(i) #for find_comp
-                    
-                    if i['formation_energy_per_atom'] < \
-                                    compound['formation_energy_per_atom']:
-                        oxide_no += 1
-                        oxides_id_withform.append(i['task_id'])
-        
-        
-        
-        #### FOR NUM PHASES
-        
-        PDict['task_id'] = compound['task_id']
-        PDict['Formula'] = compound['pretty_formula']
-        assert type(PDict['Formula']) == str
-        PDict['Bandgap /eV'] = compound['band_gap']
-        PDict['e_above_hull'] = compound['e_above_hull']
-        PDict['elements'] = compound['elements']
-        PDict['Competing Phase List (with formation E correction)'] = \
-        competing_phases_id_withform
-        
-        y = forced_choice(comp_listdict, compound['unit_cell_formula'], \
-        compound['formation_energy_per_atom'], 'NotOx')
-        
-        PDict['Complementary Competing Phase List'] = y[0]
-        PDict['Heat of Decomposition'] = y[2]
-        PDict['Early Finish1'] = y[4]
-        PDict['Index of First Phase Selected'] = y[5]
-        
-        #### FOR NUM OXIDES
-        PDict['Number of Oxides (with formation E correction)'] = oxide_no
-        PDict['Oxide List (with formation E correction)'] = oxides_id_withform
-        
-        x = forced_choice(oxide_listdict, compound['unit_cell_formula'], \
-        compound['formation_energy_per_atom'], 'Oxide')
-        
-        PDict['Complementary Oxide List'] = x[0]
-        PDict['Heat of Oxidation'] = x[2]
-        PDict['Early Finish2'] = x[4]
-        PDict['Index of First Oxide Selected'] = x[5]
+                    oxide_no += 1
+                    oxides_id_withform.append(i['task_id'])
+    
+    
+    
+    #### FOR NUM PHASES
+    
+    PDict['task_id'] = compound['task_id']
+    PDict['Formula'] = compound['pretty_formula']
+    assert type(PDict['Formula']) == str
+    PDict['e_above_hull'] = compound['e_above_hull']
+    #PDict['elements'] = compound['elements']
+    #PDict['Competing Phase List (with formation E correction)'] = \
+    competing_phases_id_withform
+    
+    y = forced_choice(comp_listdict, compound['unit_cell_formula'], \
+    compound['formation_energy_per_atom'], 'NotOx')
+    
+    #PDict['Complementary Competing Phase List'] = y[0]
+    PDict['Heat of Decomposition'] = y[2]
+    PDict['Early Finish1'] = y[4]
+    #PDict['Index of First Phase Selected'] = y[5]
+    
+    #### FOR NUM OXIDES
+    #PDict['Number of Oxides (with formation E correction)'] = oxide_no
+    #PDict['Oxide List (with formation E correction)'] = oxides_id_withform
+    
+    #x = forced_choice(oxide_listdict, compound['unit_cell_formula'], \
+    #compound['formation_energy_per_atom'], 'Oxide')
+    
+    #PDict['Complementary Oxide List'] = x[0]
+    #PDict['Heat of Oxidation'] = x[2]
+    #PDict['Early Finish2'] = x[4]
+    #PDict['Index of First Oxide Selected'] = x[5]
 
-
-        vol_ratio = []
-        
-        for i in x[0]:
-            vol_ratio.append(i['volume'] / compound['volume'])
-        # Use to see whether top two oxides have PBR 1-2        
-        PDict['Volume Ratios'] = vol_ratio
-
+    '''
+    vol_ratio = []
+    
+    for i in x[0]:
+        vol_ratio.append(i['volume'] / compound['volume'])
+    # Use to see whether top two oxides have PBR 1-2        
+    PDict['Volume Ratios'] = vol_ratio
+    '''
     
     return PDict
         
@@ -358,19 +356,19 @@ def Make_Property_Dict(compound):
     
 if __name__ == '__main__':
     all_compounds = load_compounds("MPDatabase.pckl")
-    criteria = 50 # criteria for stable phases in meV
-    stable_phase = find_stable_phases(all_compounds, criteria)
-    print(len(stable_phase))
+    #criteria = 50 # criteria for stable phases in meV
+    #stable_phase = find_stable_phases(all_compounds, criteria)
+    #print(len(stable_phase))
     
     pool = mp.Pool(processes=32)
     print('Calculating Data....')
-    DictList = list(tqdm.tqdm(pool.imap(Make_Property_Dict, stable_phase), \
-    total=len(stable_phase)))
+    DictList = list(tqdm.tqdm(pool.imap(Make_Property_Dict, all_compounds), \
+    total=len(all_compounds)))
     
     FinalDF = pd.DataFrame(DictList)
     
     print('Saving result....')
-    filename = 'FinalDictList_' + str(criteria) + '.pckl'
+    filename = 'decomposition_test.pckl'
     f = open(filename, 'wb')
     pickle.dump(FinalDF, f)
     f.close()
