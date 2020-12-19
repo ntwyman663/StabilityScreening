@@ -34,4 +34,5 @@ Dependencies of <code>Analyser.py</code>:
 import pickle
 import multiprocessing as mp
 import tqdm
+import pandas as pd
 ```

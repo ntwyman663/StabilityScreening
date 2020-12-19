@@ -9,6 +9,7 @@ Created on Thu Apr  4 18:07:03 2019
 import pickle
 import multiprocessing as mp
 import tqdm
+import pandas as pd
 
 
 def load_compounds(filename):
