@@ -286,10 +286,11 @@ def Make_Property_Dict(compound):
     for i in all_compounds:
         #### FOR NUM PHASES
         if set(i['elements']).issubset(elements):
-            comp_listdict.append(i) #for find_comp
+            #comp_listdict.append(i) #for find_comp
             
             if i['formation_energy_per_atom'] < \
                             compound['formation_energy_per_atom']:
+                comp_listdict.append(i) #for find_comp
                 #find all other phases containing just those elements                
                 competing_phase_no +=1
                 competing_phases_id_withform.append(i['task_id'])
@@ -368,7 +369,7 @@ if __name__ == '__main__':
     FinalDF = pd.DataFrame(DictList)
     
     print('Saving result....')
-    filename = 'decomposition_test.pckl'
+    filename = 'decomposition_test2.pckl'
     f = open(filename, 'wb')
     pickle.dump(FinalDF, f)
     f.close()
