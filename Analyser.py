@@ -6,14 +6,9 @@ Created on Thu Apr  4 18:07:03 2019
 @author: NickT
 """
 
-from pymatgen import MPRester
-import pandas as pd
-import matplotlib.pyplot as plt
-import csv
-import multiprocessing as mp
 import pickle
+import multiprocessing as mp
 import tqdm
-import time
 
 
 def load_compounds(filename):
