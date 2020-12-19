@@ -37,6 +37,21 @@ print(DF.shape)
 #
 #sns.plt.show()
 
+# DIFFERENCE BETWEEN HEAT OF DECOMP AND HULL
+difference = list((-DF['Heat of Decomposition'] - DF['e_above_hull']))
+sns.distplot(difference, color = 'g')
+plt.xlabel('Heat of Decomposition Error')
+plt.ylabel('Normalised Frequency')
+plt.show()
+
+plt.boxplot(difference)
+plt.show()
+print(sum(difference)/len(difference))
+
+
+
+
+
 '''
 #NUMBER OF COMPETING PHASES
 x = [i for i in DF['Competing Phase Number (with formation E correction)'] if not math.isnan(i) ]
@@ -45,7 +60,7 @@ plt.xlim(0, 1200)
 plt.xlabel('Number of Competing Phases')
 plt.ylabel('Normalised Frequency')
 plt.show()
-'''
+
 #NUMBER OF COMPETING PHASES 0-100
 print(len(DF['Competing Phase Number (with formation E correction)']))
 x = [i for i in DF['Competing Phase Number (with formation E correction)'] if not math.isnan(i) and i < 101 ]
@@ -55,7 +70,7 @@ plt.xlim(0, 100)
 plt.xlabel('Number of Competing Phases')
 plt.ylabel('Normalised Frequency')
 plt.show()
-'''
+
 #NUMBER OF ELEMENTS IN 
 norm = 0
 for i in num_elements: 
@@ -134,7 +149,6 @@ sns.jointplot(x="Number of Potential Oxides", y="Number of Elements in a Materia
 x = [i for i in DF['Heat of Decomposition'] if not math.isnan(i) and i>-0.1]
 zeros = [i for i in x if i == 0]
 #print(len(x), len(zeros))
-zeros = [len(i) for i in df2['Complementary Competing Phase List']]
 sns.distplot(x, color = 'g', bins=500)
 plt.xlim(-0.1, 0)
 plt.xlabel('Heat of Decomposition /eV/atom')
