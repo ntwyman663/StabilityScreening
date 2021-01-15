@@ -33,10 +33,54 @@ DF = DF.dropna(how='all')
 print(DF.shape)
 print(type(DF))
 
-DF_e1 = DF[DF['Early Finish2'] == False]
+
+DF_ef = DF[DF['Early Finish2'] == False]
+DF_et = DF[DF['Early Finish2'] == True]
+
+ox_heat_ef = list(DF_ef['Heat of Oxidation']) 
+ox_heat_et = list(DF_et['Heat of Oxidation'])
+no_ox_ef = [d for i, d in enumerate(ox_heat_ef) if 'O' not in DF_ef.iloc[i]['elements']]
+no_ox_et = [d for i, d in enumerate(ox_heat_et) if 'O' not in DF_et.iloc[i]['elements']]
+print(len(no_ox_ef), len(no_ox_et))
+
+bump = [DF_ef.iloc[i]['elements'] for i, d in enumerate(ox_heat_ef) if d>-1.4 and d<-1.2]
+print([DF_ef.iloc[i]['Formula'] for i, d in enumerate(ox_heat_ef) if d>-0.025 and d<0.025])
+
+count=0
+for i in bump:
+    if 'Cl' in i or 'Br' in i:
+        count+=1
+print(count/len(bump))
+
+count2=0
+for i in list(DF['elements']):
+    if 'Cl' in i or 'Br' in i:
+        count2+=1
+print(count2/len(DF.index))
+
+
+
+fig, axes = plt.subplots()
+axes.hist(ox_heat_ef, bins=200, color = 'blue', edgecolor = 'black')
+axes.set_xlim(-0.2, 0)
+axes.set_xlabel(r'$\Delta H_{ox}$ [eV/atom]', fontsize=18)
+axes.set_ylabel('Frequency',fontsize=16)
+#plt.tight_layout()
+plt.gcf().subplots_adjust(bottom=0.15)
+plt.style.use('classic')
+plt.ticklabel_format(style='sci', axis='y', scilimits=(0,0), useMathText=True)
+#axes.tick_params(axis="y", direction='in', which='both')
+#axes.tick_params(axis="x", direction='in', which='both')
+#axes.tick_params(bottom=True, top=True, left=True, right=True)
+plt.show()
+#
+
 print(DF_e1.shape)
 print((len(DF.index)- len(DF_e1.index))/ len(DF.index))
 
+
+
+'''
 decomp = list(DF['Heat of Decomposition'])
 new_decomp = list(DF_e1['Heat of Decomposition'])
 
@@ -65,7 +109,6 @@ print("without early finshers: ", sum(new_difference)/len(new_difference))
 sqr_difference = (-np.array(decomp) - np.array(DF['e_above_hull']))**2
 print("RMSE: ", math.sqrt(sum(sqr_difference)/len(sqr_difference)))
 
-'''
 # MEAN ABSOLUTE ERROR
 fig, axes = plt.subplots()
 axes.hist(abs_difference, bins=6000, color = 'blue', edgecolor = 'black')

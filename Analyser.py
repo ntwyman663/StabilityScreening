@@ -59,7 +59,15 @@ def find_stable_phases(all_compounds, criteria):
             stable_phase.append(compound)
     return stable_phase
 
+def remove_oxide(compounds):
+    print('Removing oxides from search....')
 
+    oxide_free = []
+
+    for compound in tqdm.tqdm(compounds):
+        if 'O' not in compound['elements']:
+            oxide_free.append(compound)
+    return oxide_free
 
 ######## COMPETING PHASE AND OXIDE CALCULATION ########
 
@@ -361,21 +369,25 @@ def Make_Property_Dict(compound):
 
     
 if __name__ == '__main__':
-    '''
+    
     all_compounds = load_compounds("MPDatabase.pckl")
     criteria = 50 # criteria for stable phases in meV
     stable_phase = find_stable_phases(all_compounds, criteria)
+    
     print(len(stable_phase))
     
+    oxide_free = remove_oxide(stable_phase)
+    print(oxide_free)
+
     pool = mp.Pool(processes=32)
     print('Calculating Data....')
-    DictList = list(tqdm.tqdm(pool.imap(Make_Property_Dict, stable_phase), \
+    DictList = list(tqdm.tqdm(pool.imap(Make_Property_Dict, oxide_free), \
     total=len(stable_phase)))
     
     FinalDF = pd.DataFrame(DictList)
     
     print('Saving result....')
-    filename = 'FinalDictList_' + str(criteria) + '.pckl'
+    filename = 'FinalDF_noox_' + str(criteria) + '.pckl'
     f = open(filename, 'wb')
     pickle.dump(FinalDF, f)
     f.close()
@@ -389,6 +401,6 @@ if __name__ == '__main__':
         #### FOR NUM PHASES
     #    if set(i['elements']).issubset(elements):
     #        comp_listdict.append(i) #for find_comp
-         
+    '''     
     print('Done.')
         
