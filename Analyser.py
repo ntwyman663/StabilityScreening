@@ -109,8 +109,10 @@ def find_comp(stable_oxides, compound_unit_cell, compound_formE, condition, n):
         oxide['ranker'] = dict((a, b/normalised_unit_cell[a]) for a, b in \
         oxide['el_weight'].items()) #find greedy ranking parameter
         
+        # define how much material is used in total per unit cell
         oxide['ranking_no'] = sum(oxide['ranker'].values())
     
+    # Order by energy per unit used up
     sort_oxides = sorted(stable_oxides, key = lambda oxide: \
     (oxide['formation_energy_per_atom']/oxide['ranking_no']))
         
@@ -125,6 +127,7 @@ def find_comp(stable_oxides, compound_unit_cell, compound_formE, condition, n):
         else: 
             oxide = sort_oxides1[0] #to allow forced initial choice
         
+        # elements in oxide and orig. material
         intersection = list(set(oxide['elements']).\
         intersection(normalised_unit_cell.keys()))
         # shouldnt we remove O from intersection???
@@ -135,12 +138,14 @@ def find_comp(stable_oxides, compound_unit_cell, compound_formE, condition, n):
         intersect_rank = {}
 
         for element in intersection:
+            # same as 1/ranker values
             intersect_rank[element] = normalised_unit_cell[element]/ \
             (oxide['unit_cell_formula'][element]/oxide['nsites'])
         
         #find limiting element   
         limiting_element = min(intersect_rank, key=intersect_rank.get) 
         ratio = intersect_rank[limiting_element] #(value)
+        oxide['ratio'] = ratio # For PBR calculation
         used_up_elements = []
         for element in intersection:
             
@@ -254,7 +259,9 @@ def find_oxides_test():
     original = {'A':4, 'B':8, 'C':100}
    
     oxides = [ABCO4, AO, BO2, C2O, A2BO6, A2CO4]
-                    
+    # Expected result for first pick is dH = -78.9286 eV/atom
+    print(find_comp(oxides, original, -400, 'Oxide', 0))
+    print("***********")
     print(forced_choice(oxides, original, -400, 'Oxide'))    
                         
       
@@ -342,7 +349,8 @@ def Make_Property_Dict(compound):
         vol_ratio = []
         
         for i in x[0]:
-            vol_ratio.append(i['volume'] / compound['volume'])
+            vol_ratio.append((i['volume']*i['ratio']*compound['nsites']) / \
+            (compound['volume']*i['nsites'])) # Assuming good diffusion
         # Use to see whether top two oxides have PBR 1-2        
         PDict['Volume Ratios'] = vol_ratio
 
@@ -353,6 +361,7 @@ def Make_Property_Dict(compound):
 
     
 if __name__ == '__main__':
+    '''
     all_compounds = load_compounds("MPDatabase.pckl")
     criteria = 50 # criteria for stable phases in meV
     stable_phase = find_stable_phases(all_compounds, criteria)
@@ -370,7 +379,16 @@ if __name__ == '__main__':
     f = open(filename, 'wb')
     pickle.dump(FinalDF, f)
     f.close()
-
-
+    '''
+    #find_oxides_test()
+    all_compounds = load_compounds("MPDatabase.pckl")
+    for i in all_compounds:
+        if i["pretty_formula"] == "EuAg":
+            print(i)
+    #for i in stable_phase:
+        #### FOR NUM PHASES
+    #    if set(i['elements']).issubset(elements):
+    #        comp_listdict.append(i) #for find_comp
+         
     print('Done.')
         
