@@ -10,7 +10,7 @@ import pickle
 import multiprocessing as mp
 import tqdm
 import pandas as pd
-
+import numpy as np
 
 def load_compounds(filename):
     """
@@ -330,6 +330,13 @@ def Make_Property_Dict(compound):
         PDict['Bandgap /eV'] = compound['band_gap']
         PDict['e_above_hull'] = compound['e_above_hull']
         PDict['elements'] = compound['elements']
+        unit_cell_formula = \
+        np.array(list(compound['unit_cell_formula'].values()),dtype=int)
+        gcd = np.gcd.reduce(unit_cell_formula)
+        new_form = unit_cell_formula/gcd
+        #print(compound['pretty_formula'], new_form)
+        PDict['atoms'] = sum(new_form)
+        
         PDict['Competing Phase List (with formation E correction)'] = \
         competing_phases_id_withform
         
@@ -369,7 +376,7 @@ def Make_Property_Dict(compound):
 
     
 if __name__ == '__main__':
-    
+        
     all_compounds = load_compounds("MPDatabase.pckl")
     criteria = 50 # criteria for stable phases in meV
     stable_phase = find_stable_phases(all_compounds, criteria)
@@ -377,17 +384,17 @@ if __name__ == '__main__':
     print(len(stable_phase))
     
     oxide_free = remove_oxide(stable_phase)
-    print(oxide_free)
+    print(len(oxide_free))
 
     pool = mp.Pool(processes=32)
     print('Calculating Data....')
     DictList = list(tqdm.tqdm(pool.imap(Make_Property_Dict, oxide_free), \
-    total=len(stable_phase)))
+    total=len(oxide_free)))
     
     FinalDF = pd.DataFrame(DictList)
     
     print('Saving result....')
-    filename = 'FinalDF_noox_' + str(criteria) + '.pckl'
+    filename = 'FinalDF_nsites_noox_' + str(criteria) + '.pckl'
     f = open(filename, 'wb')
     pickle.dump(FinalDF, f)
     f.close()
@@ -395,12 +402,12 @@ if __name__ == '__main__':
     #find_oxides_test()
     all_compounds = load_compounds("MPDatabase.pckl")
     for i in all_compounds:
-        if i["pretty_formula"] == "EuAg":
+        if i["pretty_formula"] == "ZnNi4O5":
             print(i)
     #for i in stable_phase:
         #### FOR NUM PHASES
     #    if set(i['elements']).issubset(elements):
     #        comp_listdict.append(i) #for find_comp
-    '''     
+    '''         
     print('Done.')
         
