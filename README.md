@@ -1,5 +1,5 @@
 # Stability Screening
-Code base for stability screening work between the [**Walsh**](http://wmd-group.github.io/) and [**Buonassisi**](https://www.buonassisigroup.com/index.php) group using the [Materials Project Database](https://materialsproject.org/).
+Code base for stability screening work between the [**Walsh**](http://wmd-group.github.io/) and [**Buonassisi**](https://www.buonassisigroup.com/index.php) group using the [Materials Project Database](https://materialsproject.org/). Primary Author: Nicholas M Twyman.
 
 ## Files
 * <code>DataGenerator.py</code> - Script to download the specified columns of
@@ -35,4 +35,5 @@ import pickle
 import multiprocessing as mp
 import tqdm
 import pandas as pd
+import numpy as np
 ```
