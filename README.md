@@ -1,5 +1,6 @@
 # Stability Screening
-Code base for stability screening work between the [**Walsh**](http://wmd-group.github.io/) and [**Buonassisi**](https://www.buonassisigroup.com/index.php) group using the [Materials Project Database](https://materialsproject.org/). Primary Author: Nicholas M Twyman.
+Code base for stability screening work between the [**Walsh**](http://wmd-group.github.io/) and [**Buonassisi**](https://www.buonassisigroup.com/index.php) group using the [Materials Project Database](https://materialsproject.org/). 
+Primary Author: Nicholas M Twyman.
 
 ## Files
 * <code>DataGenerator.py</code> - Script to download the specified columns of
